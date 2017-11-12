@@ -1,5 +1,5 @@
 package models
 
-import com.mohiva.play.silhouette.api.Identity
+import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
 
-case class User(id: Long, name: String, email: String, activated: Boolean) extends Identity
+case class User(id: Option[Long], loginInfo: LoginInfo, name: String, email: String, password: String) extends Identity

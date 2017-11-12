@@ -7,10 +7,13 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 scalaVersion := "2.12.4"
 val silhouetteVersion = "5.0.0"
 
+resolvers += Resolver.jcenterRepo
+
 libraryDependencies ++= Seq(
   guice,
   "com.mohiva" %% "play-silhouette" % silhouetteVersion,
   "com.mohiva" %% "play-silhouette-password-bcrypt" % silhouetteVersion,
+  "com.mohiva" %% "play-silhouette-persistence" % silhouetteVersion,
   "com.mohiva" %% "play-silhouette-crypto-jca" % silhouetteVersion,
   "net.codingwell" %% "scala-guice" % "4.1.0",
   "com.iheart" %% "ficus" % "1.4.3",

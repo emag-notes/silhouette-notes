@@ -4,7 +4,7 @@ import javax.inject._
 
 import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
-import play.api.mvc.{AbstractController, AnyContent, ControllerComponents, Request}
+import play.api.mvc._
 import utils.auth.DefaultEnv
 
 @Singleton

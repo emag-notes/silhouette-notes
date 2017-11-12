@@ -1,0 +1,14 @@
+@import forms.SignInForm.Data
+
+@(signInForm: Form[Data])
+
+@main("Sign In!") {
+  <h1>Sign In!</h1>
+  <div id="sign_in_form">
+    <form action="/sign-in" method="post">
+      <input name="email" type="email"/>
+      <input name="password" type="password"/>
+      <input type="submit"/>
+    </form>
+  </div>
+}

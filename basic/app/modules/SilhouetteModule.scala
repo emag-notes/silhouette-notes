@@ -3,12 +3,17 @@ package modules
 import com.google.inject.name.Named
 import com.google.inject.{AbstractModule, Provides}
 import com.mohiva.play.silhouette.api.crypto.{Crypter, CrypterAuthenticatorEncoder, Signer}
+import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.services.AuthenticatorService
-import com.mohiva.play.silhouette.api.util.{Clock, FingerprintGenerator, IDGenerator}
+import com.mohiva.play.silhouette.api.util._
 import com.mohiva.play.silhouette.api.{Environment, EventBus, Silhouette, SilhouetteProvider}
 import com.mohiva.play.silhouette.crypto.{JcaCrypter, JcaCrypterSettings, JcaSigner, JcaSignerSettings}
 import com.mohiva.play.silhouette.impl.authenticators.{CookieAuthenticator, CookieAuthenticatorService, CookieAuthenticatorSettings}
+import com.mohiva.play.silhouette.impl.providers.{CredentialsProvider, OAuth1Info, OAuth2Info, OpenIDInfo}
 import com.mohiva.play.silhouette.impl.util.{DefaultFingerprintGenerator, SecureRandomIDGenerator}
+import com.mohiva.play.silhouette.password.BCryptPasswordHasher
+import com.mohiva.play.silhouette.persistence.daos.{DelegableAuthInfoDAO, InMemoryAuthInfoDAO}
+import com.mohiva.play.silhouette.persistence.repositories.DelegableAuthInfoRepository
 import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
 import play.api.mvc.CookieHeaderEncoding
@@ -24,9 +29,12 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
     bind[UserService].to[UserServiceImpl]
+
+    bind[DelegableAuthInfoDAO[PasswordInfo]].toInstance(new InMemoryAuthInfoDAO[PasswordInfo])
+    bind[PasswordHasher].toInstance(new BCryptPasswordHasher)
     bind[IDGenerator].toInstance(new SecureRandomIDGenerator())
     bind[FingerprintGenerator].toInstance(new DefaultFingerprintGenerator(false))
-    //    bind[EventBus].toInstance(EventBus())
+    bind[EventBus].toInstance(EventBus())
     bind[Clock].toInstance(Clock())
   }
 
@@ -71,6 +79,22 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
   def provideAuthenticatorCrypter(configuration: Configuration): Crypter = {
     val config = configuration.underlying.as[JcaCrypterSettings]("silhouette.authenticator.crypter")
     new JcaCrypter(config)
+  }
+
+  @Provides
+  def provideAuthInfoRepository(passwordInfoDAO: DelegableAuthInfoDAO[PasswordInfo]): AuthInfoRepository = {
+    new DelegableAuthInfoRepository(passwordInfoDAO)
+  }
+
+  @Provides
+  def providePasswordHasherRegistry(passwordHasher: PasswordHasher): PasswordHasherRegistry = {
+    PasswordHasherRegistry(passwordHasher)
+  }
+
+  @Provides
+  def provideCredentialsProvider(authInfoRepository: AuthInfoRepository,
+                                 passwordHasherRegistry: PasswordHasherRegistry): CredentialsProvider = {
+    new CredentialsProvider(authInfoRepository, passwordHasherRegistry)
   }
 
 }

@@ -5,4 +5,6 @@ import models.User
 
 trait UserService extends IdentityService[User]{
 
+  def save(user: User): User
+
 }
