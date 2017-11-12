@@ -1,0 +1,15 @@
+@import forms.SignUpForm.Data
+
+@(signUpForm: Form[Data])
+
+@main("Sign Up!") {
+  <h1>Sign Up!</h1>
+  <div id="sign_up_form">
+    <form action="/sign-up" method="post">
+      <input name="name" type="text"/>
+      <input name="email" type="email"/>
+      <input name="password" type="password"/>
+      <input type="submit"/>
+    </form>
+  </div>
+}
